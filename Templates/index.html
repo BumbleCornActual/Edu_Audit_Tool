@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Education Audit Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2a4a;
+    --navy-mid: #2c4070;
+    --navy-light: #e8edf5;
+    --accent: #c8873a;
+    --accent-light: #fdf3e7;
+    --text: #1c2333;
+    --text-mid: #4a5568;
+    --text-light: #8899aa;
+    --border: #d4dae6;
+    --white: #ffffff;
+    --surface: #f5f7fb;
+    --success: #1a7a4a;
+    --success-bg: #e8f5ee;
+    --warn: #b85c00;
+    --warn-bg: #fff3e5;
+    --error: #a02020;
+    --error-bg: #fdeaea;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { width: 20px; height: 20px; fill: white; }
+
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+
+  .logo-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 1px;
+  }
+
+  .header-right {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  /* ── Main layout ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .page-sub {
+    font-size: 15px;
+    color: var(--text-mid);
+    margin-bottom: 2rem;
+  }
+
+  /* ── Drop zone ── */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .drop-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--navy-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  .drop-icon svg { width: 24px; height: 24px; stroke: var(--navy-mid); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  .drop-title {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .drop-sub {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 18px;
+  }
+
+  .browse-btn {
+    background: var(--navy);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .browse-btn:hover { background: var(--navy-mid); }
+
+  .file-types {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-light);
+  }
+
+  #file-input { display: none; }
+
+  /* ── Jobs list ── */
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    margin: 2.5rem 0 12px;
+  }
+
+  .job-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.25s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .job-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .job-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .job-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-running  { background: var(--navy-light); color: var(--navy-mid); }
+  .badge-done     { background: var(--success-bg); color: var(--success); }
+  .badge-error    { background: var(--error-bg);   color: var(--error); }
+  .badge-queued   { background: #f0f0f0; color: var(--text-mid); }
+
+  /* Progress bar */
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--navy-mid);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-fill.done { background: var(--success); }
+  .progress-fill.error { background: var(--error); }
+
+  .job-step {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+  }
+
+  /* Stats row */
+  .job-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+
+  .stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-info  { background: var(--navy-mid); }
+  .dot-warn  { background: var(--accent); }
+  .dot-red   { background: var(--error); }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  .download-btn:hover { background: #b07830; }
+  .download-btn svg { width: 14px; height: 14px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Log toggle */
+  .log-toggle {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 4px 0;
+    margin-top: 6px;
+    display: block;
+  }
+
+  .log-toggle:hover { color: var(--text-mid); }
+
+  .job-log {
+    display: none;
+    margin-top: 10px;
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  .job-log.visible { display: block; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  /* API key warning banner */
+  .warn-banner {
+    background: var(--warn-bg);
+    border: 1px solid #f0c080;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--warn);
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+
+  .warn-banner.visible { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Audit Tool</div>
+      <div class="logo-sub">Education Audit Transcription Pipeline</div>
+    </div>
+  </div>
+  <div class="header-right" id="clock"></div>
+</header>
+
+<main>
+  <h1 class="page-title">Process Audit Files</h1>
+  <p class="page-sub">Drop in audio recordings or documents — get back transcripts, summaries, compliance flags, and a PDF report.</p>
+
+  <div class="warn-banner" id="api-warn">
+    ⚠️ <strong>ANTHROPIC_API_KEY not detected.</strong> Summarization will fail. Set the key before uploading files.
+  </div>
+
+  <!-- Drop zone -->
+  <div class="drop-zone" id="drop-zone">
+    <div class="drop-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+    </div>
+    <div class="drop-title">Drop your file here</div>
+    <div class="drop-sub">Audio recordings, PDFs, Word docs, or scanned images</div>
+    <button class="browse-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+    <div class="file-types">MP3 · WAV · M4A · MP4 · PDF · DOCX · TXT · PNG · JPG · TIFF</div>
+    <input type="file" id="file-input" accept=".mp3,.wav,.m4a,.ogg,.flac,.mp4,.pdf,.docx,.txt,.png,.jpg,.jpeg,.tiff">
+  </div>
+
+  <!-- Jobs -->
+  <div class="section-label">Processing Queue</div>
+  <div id="jobs-container">
+    <div class="empty-state" id="empty-msg">No files processed yet. Drop a file above to get started.</div>
+  </div>
+</main>
+
+<script>
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const jobsContainer = document.getElementById('jobs-container');
+const emptyMsg = document.getElementById('empty-msg');
+const activeJobs = {};
+
+// Clock
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// Check API key on load
+fetch('/jobs').then(r => r.json()).then(() => {}).catch(() => {
+  document.getElementById('api-warn').classList.add('visible');
+});
+
+// Drag and drop
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+  fileInput.value = '';
+});
+
+function uploadFile(file) {
+  const form = new FormData();
+  form.append('file', file);
+
+  fetch('/upload', { method: 'POST', body: form })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert('Upload error: ' + data.error); return; }
+      emptyMsg.style.display = 'none';
+      createJobCard(data.job_id, file.name);
+      pollJob(data.job_id);
+    })
+    .catch(() => alert('Upload failed — is the server running?'));
+}
+
+function createJobCard(jobId, filename) {
+  const card = document.createElement('div');
+  card.className = 'job-card';
+  card.id = 'job-' + jobId;
+  card.innerHTML = `
+    <div class="job-header">
+      <div class="job-name" title="${filename}">${filename}</div>
+      <span class="job-badge badge-queued" id="badge-${jobId}">Queued</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="fill-${jobId}" style="width:0%"></div>
+    </div>
+    <div class="job-step" id="step-${jobId}">Waiting to start...</div>
+    <div id="stats-${jobId}"></div>
+    <button class="log-toggle" onclick="toggleLog('${jobId}')">Show details ▾</button>
+    <div class="job-log" id="log-${jobId}"></div>
+  `;
+  jobsContainer.insertBefore(card, jobsContainer.firstChild);
+}
+
+function toggleLog(jobId) {
+  const log = document.getElementById('log-' + jobId);
+  log.classList.toggle('visible');
+}
+
+function pollJob(jobId) {
+  const interval = setInterval(() => {
+    fetch('/status/' + jobId)
+      .then(r => r.json())
+      .then(job => updateCard(jobId, job, interval))
+      .catch(() => clearInterval(interval));
+  }, 1500);
+}
+
+function updateCard(jobId, job, interval) {
+  const fill   = document.getElementById('fill-' + jobId);
+  const badge  = document.getElementById('badge-' + jobId);
+  const step   = document.getElementById('step-' + jobId);
+  const stats  = document.getElementById('stats-' + jobId);
+  const log    = document.getElementById('log-' + jobId);
+
+  fill.style.width = job.pct + '%';
+  step.textContent = job.step || '';
+
+  // Badge
+  badge.className = 'job-badge';
+  if (job.status === 'running')  { badge.classList.add('badge-running');  badge.textContent = job.step || 'Running'; }
+  if (job.status === 'queued')   { badge.classList.add('badge-queued');   badge.textContent = 'Queued'; }
+  if (job.status === 'done')     { badge.classList.add('badge-done');     badge.textContent = 'Complete'; fill.classList.add('done'); }
+  if (job.status === 'error')    { badge.classList.add('badge-error');    badge.textContent = 'Error'; fill.classList.add('error'); }
+
+  // Log
+  if (job.log) log.innerHTML = job.log.map(l => `<div>${l}</div>`).join('');
+
+  // Stats + download on completion
+  if (job.status === 'done') {
+    clearInterval(interval);
+    let html = '<div class="job-stats">';
+    html += `<div class="stat"><div class="stat-dot dot-info"></div>${job.flag_count} compliance flag${job.flag_count !== 1 ? 's' : ''}</div>`;
+    if (job.red_flags > 0) {
+      html += `<div class="stat"><div class="stat-dot dot-red"></div>${job.red_flags} red flag${job.red_flags !== 1 ? 's' : ''}</div>`;
+    }
+    html += '</div>';
+    if (job.report) {
+      html += `<a class="download-btn" href="/download/${job.report}" download>
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download PDF Report
+      </a>`;
+    }
+    stats.innerHTML = html;
+  }
+
+  if (job.status === 'error') {
+    clearInterval(interval);
+    document.getElementById('log-' + jobId).classList.add('visible');
+  }
+}
+</script>
+</body>
+</html>

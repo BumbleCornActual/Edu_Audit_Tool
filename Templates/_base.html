@@ -1,0 +1,106 @@
+<!-- templates/_base.html — included by all pages via Jinja2 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Audit Tool{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1a2a4a; --navy-mid: #2c4070; --navy-light: #e8edf5;
+    --accent: #c8873a; --accent-light: #fdf3e7;
+    --text: #1c2333; --text-mid: #4a5568; --text-light: #8899aa;
+    --border: #d4dae6; --white: #ffffff; --surface: #f5f7fb;
+    --success: #1a7a4a; --success-bg: #e8f5ee;
+    --warn: #b85c00; --warn-bg: #fff3e5;
+    --error: #a02020; --error-bg: #fdeaea;
+    --radius: 10px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--navy); padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .logo-mark {
+    width: 36px; height: 36px; background: var(--accent); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-mark svg { width: 20px; height: 20px; }
+  .logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: white; }
+  .logo-sub  { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+
+  nav { display: flex; gap: 4px; }
+  nav a {
+    color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px;
+    padding: 6px 14px; border-radius: 6px; transition: background 0.15s, color 0.15s;
+  }
+  nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+  nav a.active { background: rgba(255,255,255,0.15); color: white; font-weight: 500; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  .page-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--navy); margin-bottom: 6px; }
+  .page-sub   { font-size: 15px; color: var(--text-mid); margin-bottom: 2rem; }
+  .section-label {
+    font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-light); margin: 2.5rem 0 12px;
+  }
+  .card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; margin-bottom: 12px;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s;
+  }
+  .btn-primary   { background: var(--navy);   color: white; }
+  .btn-primary:hover { background: var(--navy-mid); }
+  .btn-accent    { background: var(--accent); color: white; }
+  .btn-accent:hover  { background: #b07830; }
+  .btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-mid); }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 500;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .badge-done  { background: var(--success-bg); color: var(--success); }
+  .badge-error { background: var(--error-bg);   color: var(--error); }
+  .badge-warn  { background: var(--warn-bg);     color: var(--warn); }
+
+  .empty-state { text-align: center; padding: 3rem; color: var(--text-light); font-size: 14px; }
+  .empty-state p { margin-top: 8px; }
+</style>
+{% block extra_style %}{% endblock %}
+</head>
+<body>
+<header>
+  <a class="logo" href="/">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round">
+        <path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Audit Tool</div>
+      <div class="logo-sub">Education Audit Transcription Pipeline</div>
+    </div>
+  </a>
+  <nav>
+    <a href="/"        class="{% if active == 'home'     %}active{% endif %}">Process Files</a>
+    <a href="/history" class="{% if active == 'history'  %}active{% endif %}">History</a>
+    <a href="/settings"class="{% if active == 'settings' %}active{% endif %}">Settings</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+{% block scripts %}{% endblock %}
+</body>
+</html>

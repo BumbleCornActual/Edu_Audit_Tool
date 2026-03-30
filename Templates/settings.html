@@ -1,0 +1,191 @@
+{% extends "_base.html" %}
+{% block title %}Settings — Audit Tool{% endblock %}
+{% set active = 'settings' %}
+
+{% block extra_style %}
+<style>
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 640px) { .settings-grid { grid-template-columns: 1fr; } }
+
+  .section-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+  .section-card h2 { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .section-card p  { font-size: 13px; color: var(--text-mid); margin-bottom: 16px; line-height: 1.5; }
+
+  /* Keyword list */
+  .kw-list { list-style: none; margin-bottom: 12px; max-height: 320px; overflow-y: auto; }
+  .kw-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--text);
+    border: 1px solid transparent; margin-bottom: 4px; background: var(--surface);
+    animation: fadeUp 0.15s ease;
+  }
+  .kw-item:hover { border-color: var(--border); }
+  .kw-item.highlight { background: var(--accent-light); border-color: #f0c080; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  .kw-text { flex: 1; }
+  .kw-cat  { font-size: 11px; color: var(--text-light); margin: 0 10px; }
+  .del-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 4px; }
+  .del-btn:hover { background: var(--error-bg); color: var(--error); }
+
+  /* Add keyword input */
+  .add-row { display: flex; gap: 8px; }
+  .add-input {
+    flex: 1; padding: 8px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    background: var(--white); color: var(--text); outline: none;
+  }
+  .add-input:focus { border-color: var(--navy-mid); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--navy); color: white; padding: 10px 18px;
+    border-radius: 8px; font-size: 13px; opacity: 0;
+    transition: opacity 0.3s; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  .kw-count { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+  .filter-input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+    border-radius: 7px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+    margin-bottom: 10px; background: var(--surface); outline: none;
+  }
+  .filter-input:focus { border-color: var(--navy-mid); background: var(--white); }
+
+  /* Info box */
+  .info-box {
+    background: var(--navy-light); border-radius: 8px;
+    padding: 14px 16px; font-size: 13px; color: var(--navy-mid); line-height: 1.6;
+  }
+  .info-box strong { color: var(--navy); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Settings</h1>
+<p class="page-sub">Manage the keywords the compliance scanner looks for in every transcript.</p>
+
+<div class="settings-grid">
+
+  <!-- Left: keyword manager -->
+  <div class="section-card" style="grid-column: 1 / -1">
+    <h2>Compliance Keywords</h2>
+    <p>These words and phrases are scanned for in every transcript. The tool flags any line that contains them, with surrounding context, in the PDF report. Edit freely — your changes save instantly.</p>
+
+    <input class="filter-input" id="kw-filter" placeholder="Filter keywords...">
+    <div class="kw-count" id="kw-count"></div>
+    <ul class="kw-list" id="kw-list"></ul>
+
+    <div class="add-row">
+      <input class="add-input" id="new-kw" placeholder="Add a keyword or phrase..." maxlength="120">
+      <button class="btn btn-primary" onclick="addKeyword()">Add</button>
+    </div>
+  </div>
+
+  <!-- Right: built-in info -->
+  <div class="section-card">
+    <h2>Built-in Red-Flag Phrases</h2>
+    <p>These phrases are always scanned and cannot be removed — they indicate potential procedural violations.</p>
+    <div class="info-box">
+      <strong>Examples:</strong><br>
+      "we can't do that" · "we don't have to" · "that's not our responsibility" · "no funding" · "without consent" · "didn't notify" · "waiting list" · "can't afford"
+      <br><br>
+      Red-flag matches appear in a separate section of the PDF report with full context.
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2>About the Scanner</h2>
+    <p>The compliance scanner runs on every transcript after it's generated. It checks each line for keyword matches, records the surrounding context, and includes a flag table in the PDF report.</p>
+    <div class="info-box">
+      <strong>Flag categories:</strong><br>
+      <strong>Regulatory</strong> — IDEA, IEP, Section 504, FERPA, etc.<br>
+      <strong>Red flag</strong> — phrases suggesting procedural issues<br>
+      <strong>Custom</strong> — keywords you add here
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Keywords saved</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let keywords = [];
+let saveTimer = null;
+
+fetch('/api/keywords')
+  .then(r => r.json())
+  .then(data => { keywords = data.keywords || []; renderList(); });
+
+function renderList() {
+  const filter = document.getElementById('kw-filter').value.toLowerCase();
+  const list   = document.getElementById('kw-list');
+  const visible = filter ? keywords.filter(k => k.toLowerCase().includes(filter)) : keywords;
+
+  document.getElementById('kw-count').textContent = `${keywords.length} keyword${keywords.length !== 1 ? 's' : ''}`;
+
+  if (!visible.length) {
+    list.innerHTML = `<li style="text-align:center;padding:1rem;color:var(--text-light);font-size:13px">${filter ? 'No matches.' : 'No keywords yet.'}</li>`;
+    return;
+  }
+
+  list.innerHTML = visible.map(kw => `
+    <li class="kw-item" data-kw="${escHtml(kw)}">
+      <span class="kw-text">${escHtml(kw)}</span>
+      <button class="del-btn" title="Remove" onclick="removeKeyword('${escHtml(kw)}')">×</button>
+    </li>`).join('');
+}
+
+function addKeyword() {
+  const input = document.getElementById('new-kw');
+  const val = input.value.trim();
+  if (!val) return;
+  if (keywords.includes(val)) {
+    // Briefly highlight the existing one
+    const items = document.querySelectorAll('.kw-item');
+    items.forEach(el => { if (el.dataset.kw === val) { el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 1200); } });
+    input.value = '';
+    return;
+  }
+  keywords.unshift(val);
+  input.value = '';
+  renderList();
+  scheduleSave();
+}
+
+function removeKeyword(kw) {
+  keywords = keywords.filter(k => k !== kw);
+  renderList();
+  scheduleSave();
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveKeywords, 600);
+}
+
+function saveKeywords() {
+  fetch('/api/keywords', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ keywords }),
+  }).then(() => showToast('Keywords saved'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('kw-filter').addEventListener('input', renderList);
+document.getElementById('new-kw').addEventListener('keydown', e => { if (e.key === 'Enter') addKeyword(); });
+</script>
+{% endblock %}

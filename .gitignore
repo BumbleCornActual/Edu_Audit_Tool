@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables — never commit API keys
+.env
+*.env
+config.env
+
+# Output folders (don't commit processed files)
+output/
+pipeline.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Whisper model cache (large binary files)
+~/.cache/whisper/
+
+# API key saved by install wizard — never commit this
+config.txt

@@ -1,0 +1,26 @@
+# Custom compliance keywords for education audits
+# One keyword or phrase per line
+# Lines starting with # are ignored
+
+IEP
+Section 504
+IDEA
+FERPA
+LRE
+FAPE
+due process
+prior written notice
+parent consent
+behavior intervention plan
+BIP
+functional behavior assessment
+FBA
+manifestation determination
+transition plan
+ESY
+extended school year
+re-evaluation
+eligibility
+placement
+accommodation
+modification

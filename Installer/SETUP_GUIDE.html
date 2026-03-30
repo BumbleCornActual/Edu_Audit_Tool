@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Education Audit Tool — Setup Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #1a2a4a; --navy-mid: #2c4070; --navy-light: #e8edf5;
+  --accent: #c8873a; --accent-light: #fdf3e7;
+  --text: #1c2333; --text-mid: #4a5568; --text-light: #8899aa;
+  --border: #d4dae6; --white: #fff; --surface: #f5f7fb;
+  --success: #1a7a4a; --success-bg: #e8f5ee;
+  --win: #0078d4; --win-light: #e8f2fc;
+  --mac: #555; --mac-light: #f0f0f0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  background: var(--navy);
+  padding: 2rem 2rem 2.5rem;
+  text-align: center;
+}
+.logo-mark {
+  width: 52px; height: 52px; background: var(--accent); border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;
+}
+.logo-mark svg { width: 28px; height: 28px; }
+h1 { font-family: 'DM Serif Display', serif; font-size: 32px; color: white; margin-bottom: 8px; }
+.header-sub { font-size: 15px; color: rgba(255,255,255,0.55); }
+
+/* OS Tabs */
+.tab-row {
+  display: flex; justify-content: center; gap: 12px;
+  padding: 1.5rem; background: var(--navy); border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.tab {
+  padding: 10px 28px; border-radius: 8px; font-size: 15px; font-weight: 500;
+  cursor: pointer; border: 2px solid transparent; transition: all 0.15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab svg { width: 18px; height: 18px; }
+.tab-win { background: var(--win-light); color: var(--win); border-color: var(--win); }
+.tab-win.active, .tab-win:hover { background: var(--win); color: white; }
+.tab-mac { background: var(--mac-light); color: var(--mac); border-color: #ccc; }
+.tab-mac.active, .tab-mac:hover { background: var(--mac); color: white; }
+
+/* Content */
+main { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+.os-panel { display: none; }
+.os-panel.active { display: block; }
+
+/* Steps */
+.steps { counter-reset: step; }
+.step {
+  display: flex; gap: 20px; margin-bottom: 2rem;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 24px;
+  animation: fadeUp 0.3s ease both;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.step:nth-child(1) { animation-delay: 0.05s; }
+.step:nth-child(2) { animation-delay: 0.10s; }
+.step:nth-child(3) { animation-delay: 0.15s; }
+.step:nth-child(4) { animation-delay: 0.20s; }
+.step:nth-child(5) { animation-delay: 0.25s; }
+.step:nth-child(6) { animation-delay: 0.30s; }
+
+.step-num {
+  counter-increment: step;
+  min-width: 36px; height: 36px; border-radius: 50%;
+  background: var(--navy); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 500; flex-shrink: 0; margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+.step-desc  { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+
+.step-desc a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.step-desc a:hover { text-decoration: underline; }
+
+.note {
+  background: var(--navy-light); border-radius: 7px;
+  padding: 10px 14px; font-size: 13px; color: var(--navy-mid);
+  margin-top: 10px; line-height: 1.5;
+}
+.note strong { color: var(--navy); }
+
+.warn-note {
+  background: var(--accent-light); border-radius: 7px;
+  padding: 10px 14px; font-size: 13px; color: #8a5a1a;
+  margin-top: 10px; line-height: 1.5;
+}
+
+code {
+  font-family: monospace; font-size: 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 2px 7px; border-radius: 4px; color: var(--navy);
+}
+
+.big-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 14px; padding: 12px 24px; border-radius: 10px;
+  font-size: 15px; font-weight: 500; text-decoration: none;
+  transition: opacity 0.15s;
+}
+.big-btn:hover { opacity: 0.85; }
+.big-btn svg { width: 18px; height: 18px; }
+.btn-win { background: var(--win); color: white; }
+.btn-mac { background: #333; color: white; }
+.btn-link { background: var(--accent); color: white; }
+
+/* Done banner */
+.done-banner {
+  background: var(--success-bg); border: 1px solid #a0d4b8;
+  border-radius: 12px; padding: 20px 24px; text-align: center;
+  margin-top: 2rem;
+}
+.done-banner h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--success); margin-bottom: 6px; }
+.done-banner p  { font-size: 14px; color: #2a5a3a; line-height: 1.6; }
+
+/* FAQ */
+.faq { margin-top: 3rem; }
+.faq h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--navy); margin-bottom: 1rem; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 14px 0; }
+.faq-q { font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; }
+.faq-q::after { content: '▾'; color: var(--text-light); }
+.faq-a { font-size: 13px; color: var(--text-mid); line-height: 1.6; padding-top: 8px; display: none; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-q::after { content: '▴'; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 12h6M9 16h6M9 8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+    </svg>
+  </div>
+  <h1>Education Audit Tool</h1>
+  <p class="header-sub">Setup Guide — follow the steps for your computer below</p>
+</header>
+
+<div class="tab-row">
+  <div class="tab tab-win active" onclick="switchOS('win')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.6L10.5 4.5V11.5H3V5.6ZM3 12.5H10.5V19.5L3 18.4V12.5ZM11.5 4.3L21 3V11.5H11.5V4.3ZM11.5 12.5H21V21L11.5 19.7V12.5Z"/></svg>
+    Windows
+  </div>
+  <div class="tab tab-mac" onclick="switchOS('mac')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+    Mac
+  </div>
+</div>
+
+<main>
+
+<!-- ══ WINDOWS ══════════════════════════════════════════════════════════ -->
+<div id="panel-win" class="os-panel active">
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Plug in the flash drive</div>
+        <div class="step-desc">
+          Insert the USB flash drive into your computer. It should appear in File Explorer (usually as drive <code>D:</code>, <code>E:</code>, or <code>F:</code>).
+          <div class="note">Keep the flash drive plugged in the whole time you use the tool.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Install Python (first time only)</div>
+        <div class="step-desc">
+          Python is the programming language the tool runs on. If it's already installed, the setup script will detect it automatically.
+          <br><br>
+          If not, download it here:
+          <br>
+          <a class="big-btn btn-link" href="https://www.python.org/downloads/" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download Python for Windows
+          </a>
+          <div class="warn-note"><strong>Important:</strong> During install, check the box that says <strong>"Add Python to PATH"</strong> before clicking Install Now.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Get your Anthropic API Key</div>
+        <div class="step-desc">
+          The tool uses AI to summarize transcripts. You need a free API key from Anthropic.
+          <br><br>
+          <a class="big-btn btn-link" href="https://console.anthropic.com" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+            Get API Key at console.anthropic.com
+          </a>
+          <div class="note">Sign in or create a free account → click your name top right → API Keys → Create Key. Copy it — you'll paste it in the next step.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Run the setup script</div>
+        <div class="step-desc">
+          Open the flash drive in File Explorer and double-click:
+          <br><br>
+          <strong style="font-size:15px">📄 START_WINDOWS.bat</strong>
+          <br><br>
+          The script will:
+          <ul style="margin: 8px 0 0 16px; line-height:2">
+            <li>Check your Python installation</li>
+            <li>Install all required packages automatically</li>
+            <li>Ask you to paste your API key</li>
+            <li>Open the tool in your browser</li>
+          </ul>
+          <div class="note"><strong>If Windows shows a security warning:</strong> click "More info" → "Run anyway". This is normal for scripts on a flash drive.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Next time — just double-click START_WINDOWS.bat</div>
+        <div class="step-desc">
+          After the first setup, the script skips all the installation steps and goes straight to launching the tool. Your API key is saved in <code>config.env</code> on the flash drive.
+          <div class="note">Never share the flash drive with someone you don't trust — it contains your API key.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="done-banner">
+    <h2>That's it!</h2>
+    <p>The tool will open at <strong>http://localhost:5000</strong> in your browser.<br>
+    Drag a file onto the page, wait for processing, and download the PDF report.</p>
+  </div>
+</div>
+
+<!-- ══ MAC ══════════════════════════════════════════════════════════════ -->
+<div id="panel-mac" class="os-panel">
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Plug in the flash drive</div>
+        <div class="step-desc">
+          Insert the USB flash drive. It will appear on your Desktop and in Finder under "Locations."
+          <div class="note">Keep the flash drive plugged in the whole time you use the tool.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Install Python (first time only)</div>
+        <div class="step-desc">
+          The setup script checks for Python automatically. If it's missing:
+          <br><br>
+          <a class="big-btn btn-link" href="https://www.python.org/downloads/macos/" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download Python for Mac
+          </a>
+          <div class="note">Download the <strong>.pkg</strong> installer and run it. Or if you use Homebrew: <code>brew install python3</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Get your Anthropic API Key</div>
+        <div class="step-desc">
+          <a class="big-btn btn-link" href="https://console.anthropic.com" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+            Get API Key at console.anthropic.com
+          </a>
+          <div class="note">Sign in → click your name top right → API Keys → Create Key. Copy it — you'll paste it when the script asks.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Allow the script to run (first time only)</div>
+        <div class="step-desc">
+          Mac may block the script the first time. To allow it:
+          <ol style="margin: 10px 0 0 16px; line-height: 2.2; font-size:14px; color:var(--text-mid)">
+            <li>Open the flash drive in Finder</li>
+            <li>Hold <code>Control</code> and click <strong>START_MAC.command</strong></li>
+            <li>Choose <strong>Open</strong> from the menu</li>
+            <li>Click <strong>Open</strong> again in the confirmation dialog</li>
+          </ol>
+          <div class="note">You only need to do this once. After that, double-clicking works normally.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Run the setup script</div>
+        <div class="step-desc">
+          Double-click <strong>START_MAC.command</strong> on the flash drive.
+          <br><br>
+          A Terminal window opens and the script will:
+          <ul style="margin: 8px 0 0 16px; line-height:2">
+            <li>Check your Python installation</li>
+            <li>Install all required packages</li>
+            <li>Ask you to paste your API key</li>
+            <li>Open the tool in your browser automatically</li>
+          </ul>
+          <div class="note">Keep the Terminal window open while using the tool. Close it when done.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <div class="step-title">Next time — just double-click START_MAC.command</div>
+        <div class="step-desc">
+          After setup, the script goes straight to launching. Your API key is saved in <code>config.env</code> on the flash drive.
+          <div class="note">Never share the flash drive with someone you don't trust — it contains your API key.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="done-banner">
+    <h2>That's it!</h2>
+    <p>The tool opens at <strong>http://localhost:5000</strong> in your browser.<br>
+    Drag a file onto the page, wait for processing, and download the PDF report.</p>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <h2>Common Questions</h2>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">The tool opened but summarization failed — what's wrong?</div>
+    <div class="faq-a">Your API key is either missing or incorrect. Open <code>config.env</code> on the flash drive in Notepad (Windows) or TextEdit (Mac) and make sure the line reads <code>ANTHROPIC_API_KEY=sk-ant-...</code> with your actual key after the equals sign.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">The browser says "This site can't be reached" at localhost:5000</div>
+    <div class="faq-a">The server isn't running. Make sure the Terminal or Command Prompt window from the start script is still open. If you closed it, double-click the start script again to relaunch.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Where do the output files go?</div>
+    <div class="faq-a">All output is saved to the <code>output/</code> folder on the flash drive: transcripts in <code>output/transcripts/</code>, summaries in <code>output/summaries/</code>, and PDF reports in <code>output/reports/</code>. Processed source files are archived in <code>output/organized/</code> by date.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I use the tool without internet?</div>
+    <div class="faq-a">Partially. Transcription (audio and document extraction) works offline. AI summarization requires an internet connection to reach the Anthropic API. Compliance scanning is fully offline.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Scanned images aren't being transcribed</div>
+    <div class="faq-a">Image files (PNG, JPG, TIFF) require Tesseract OCR to be installed separately. On Windows, download it from <a href="https://github.com/UB-Mannheim/tesseract/wiki" target="_blank">github.com/UB-Mannheim/tesseract</a>. On Mac, run <code>brew install tesseract</code> in Terminal.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How do I add my own compliance keywords?</div>
+    <div class="faq-a">Once the tool is running, click <strong>Settings</strong> in the top navigation bar. You can add and remove keywords there — changes save automatically.</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function switchOS(os) {
+  document.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + os).classList.add('active');
+  document.querySelector('.tab-' + os).classList.add('active');
+}
+</script>
+</body>
+</html>
