@@ -41,8 +41,13 @@ def summarize_transcript(transcript: str, source_name: str = "") -> str:
     # Trim if very long (Claude handles ~200k tokens but we keep costs manageable)
     max_chars = 80_000
     if len(transcript) > max_chars:
-        log.warning(f"Transcript truncated from {len(transcript)} to {max_chars} chars for summarization.")
-        transcript = transcript[:max_chars] + "\n\n[... transcript truncated for length ...]"
+        # Break at the last sentence boundary to avoid cutting mid-sentence
+        cut = transcript[:max_chars]
+        last_boundary = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "), cut.rfind("\n"))
+        if last_boundary > max_chars // 2:
+            cut = cut[:last_boundary + 1]
+        log.warning(f"Transcript truncated from {len(transcript)} to {len(cut)} chars for summarization.")
+        transcript = cut + "\n\n[... transcript truncated for length ...]"
 
     user_message = f"Source: {source_name}\n\n---TRANSCRIPT START---\n{transcript}\n---TRANSCRIPT END---"
 

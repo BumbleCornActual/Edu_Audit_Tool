@@ -7,6 +7,7 @@ Uses ReportLab for PDF generation.
 import logging
 from pathlib import Path
 from datetime import datetime
+from xml.sax.saxutils import escape as xml_escape
 
 log = logging.getLogger(__name__)
 
@@ -169,10 +170,10 @@ def generate_pdf_report(
             story.append(Paragraph("Red Flag Context", section_style))
             for flag in red_flags:
                 story.append(Paragraph(
-                    f"<b>Line {flag['line_number']} — \"{flag['keyword']}\"</b>",
+                    f"<b>Line {flag['line_number']} — \"{xml_escape(flag['keyword'])}\"</b>",
                     body_style,
                 ))
-                story.append(Paragraph(f"...{flag['context']}...", flag_context_style))
+                story.append(Paragraph(f"...{xml_escape(flag['context'])}...", flag_context_style))
                 story.append(Spacer(1, 6))
     else:
         story.append(Paragraph("No compliance flags detected.", body_style))

@@ -39,8 +39,9 @@ def _transcribe_audio(path: Path) -> str:
             "whisper is not installed. Run: pip install openai-whisper"
         )
 
-    log.info(f"    Loading Whisper model for: {path.name}")
-    model = whisper.load_model("base")  # options: tiny, base, small, medium, large
+    whisper_model = os.environ.get("WHISPER_MODEL", "base")
+    log.info(f"    Loading Whisper '{whisper_model}' model for: {path.name}")
+    model = whisper.load_model(whisper_model)  # options: tiny, base, small, medium, large
     result = model.transcribe(str(path))
     return result["text"].strip()
 

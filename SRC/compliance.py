@@ -82,10 +82,14 @@ def flag_compliance_issues(transcript: str, keywords: list[str] = None) -> list[
     lines = transcript.split("\n")
     flags: list[ComplianceFlag] = []
 
+    # Pre-compile word-boundary patterns to avoid false positives
+    # e.g. "idea" should not match "ideal", "ada" should not match "adequate"
+    compiled = {kw: re.compile(r'\b' + re.escape(kw) + r'\b') for kw in all_keywords}
+
     for line_num, line in enumerate(lines, start=1):
         line_lower = line.lower()
         for keyword, category in all_keywords.items():
-            if keyword in line_lower:
+            if compiled[keyword].search(line_lower):
                 # Build context window (prev line + current + next line)
                 prev_line = lines[line_num - 2] if line_num > 1 else ""
                 next_line = lines[line_num] if line_num < len(lines) else ""

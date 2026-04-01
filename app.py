@@ -80,6 +80,8 @@ def load_history() -> list[dict]:
 def append_history(record: dict):
     history = load_history()
     history.insert(0, record)
+    if len(history) > 200:
+        logging.warning(f"Job history exceeds 200 records — oldest {len(history) - 200} record(s) will be dropped.")
     HISTORY_FILE.write_text(json.dumps(history[:200], indent=2), encoding="utf-8")
 
 
@@ -227,14 +229,22 @@ def get_keywords():
 
 @app.route("/api/keywords", methods=["POST"])
 def set_keywords():
-    data = request.get_json()
-    keywords = [k.strip() for k in data.get("keywords", []) if k.strip()]
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "Invalid request body"}), 400
+    raw = data.get("keywords", [])
+    if not isinstance(raw, list):
+        return jsonify({"error": "'keywords' must be a list"}), 400
+    keywords = [k.strip() for k in raw if isinstance(k, str) and k.strip()]
     save_keywords(keywords)
     return jsonify({"saved": len(keywords)})
 
 @app.route("/download/<filename>")
 def download(filename):
-    return send_from_directory(str(OUTPUT_DIR / "reports"), filename, as_attachment=True)
+    safe = secure_filename(filename)
+    if not safe:
+        return jsonify({"error": "Invalid filename"}), 400
+    return send_from_directory(str(OUTPUT_DIR / "reports"), safe, as_attachment=True)
 
 
 if __name__ == "__main__":
